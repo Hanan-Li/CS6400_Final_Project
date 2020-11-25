@@ -31,11 +31,13 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"hs:c:t:j:r",["servers=","clients=","transactions=", "jobs="])
     except getopt.GetoptError:
-        print("Shit")
+        print("Usage:")
+        print("python run_test.py -s <num_servers> -c <num_clients> -t <num_transactions> -j <num_threads>")
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print("Shit")
+            print("Usage:")
+            print("python run_test.py -s <num_servers> -c <num_clients> -t <num_transactions> -j <num_threads>")
             sys.exit()
         elif opt in ("-s", "--servers"):
             num_servers = int(arg)
