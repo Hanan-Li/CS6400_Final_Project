@@ -1,57 +1,69 @@
 import os
 import sys
-import getopt
-
-def setupHaproxy(num_servers):
-    server_cfg = "server_" + str(num_servers) + ".cfg"
-    command = 'sudo haproxy -f {0} -p /var/run/haproxy.pid -sf $(cat /var/run/haproxy.pid)'.format(server_cfg)
-    stream = os.popen(command)
-    output = stream.read()
-    print(output)
+import psycopg2
 
 
-def run_pgbench(num_clients, num_transactions, num_threads, read_only):
-    command = ""
-    if read_only:
-        command = 'pgbench -n -S -c {0} -t {1} -j {2} -C -h 127.0.0.1 -p 6432 -U postgres ChaCha'.format(num_clients, num_transactions, num_threads)
-    else:
-        command = 'pgbench -n -c {0} -t {1} -j {2} -C -h 127.0.0.1 -p 6432 -U postgres ChaCha'.format(num_clients, num_transactions, num_threads)
-    print(command)
-    stream = os.popen(command)
-    output = stream.read()
-    print(output)
+def init_conn(ip_list) :
+    conn = []
+    for i in range(len(ip_list)) :
+    
+        connection = psycopg2.connect(user = "postgres",
+                                      password = "realSmooth",
+                                      host = ip_list[i],
+                                      port = "5432",
+                                      database = "ChaCha")
+        conn.append(connection)
+    return conn
+    
 
+def insert(conn) :
+    insert_query = "INSERT INTO pgbench_tellers (tid, bid, tbalance, filler) VALUES (999, 999, 999, '');"
+    for i in range(len(conn)) :
+        cursor = conn[i].cursor()
+        cursor.execute(insert_query)
+        conn[i].commit ()
+        cursor.close ()
+                    
+
+def check_sub(conn) :
+
+    done_flag = [False for i in range(len(conn))]
+
+    while True :
+        for i in range(len(conn)) :
+
+            if done_flag[i] == False :
+            
+                cursor = conn[i].cursor()
+                cursor.execute("SELECT * FROM pg_subscription_rel;")
+                record = cursor.fetchall()
+                cursor.close ()
+                
+                state = [record[j][2] for j in range(len(record))]
+                if 'd' in state:
+                    continue
+                else :
+                    done_flag[i] = True
+
+        if False in done_flag :
+            continue
+        else :
+            return True
+            
 
 def main(argv):
-    num_servers = 2
-    num_clients = 80
-    num_transactions = 1000
-    num_threads = 1
-    read_only = False
-    try:
-        opts, args = getopt.getopt(argv,"hs:c:t:j:r",["servers=","clients=","transactions=", "jobs="])
-    except getopt.GetoptError:
-        print("Usage:")
-        print("python run_test.py -s <num_servers> -c <num_clients> -t <num_transactions> -j <num_threads>")
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == '-h':
-            print("Usage:")
-            print("python run_test.py -s <num_servers> -c <num_clients> -t <num_transactions> -j <num_threads>")
-            sys.exit()
-        elif opt in ("-s", "--servers"):
-            num_servers = int(arg)
-        elif opt in ("-c", "--clients"):
-            num_clients = int(arg)
-        elif opt in ("-t", "--transactions"):
-            num_transactions = int(arg)
-        elif opt in ("-j", "--jobs"):
-            num_threads = int(arg)
-        elif opt == '-r':
-            read_only = True
-    print(num_servers)
-    # setupHaproxy(num_servers)
-    run_pgbench(num_clients, num_transactions, num_threads, read_only)
+
+    ip_list = ['52.201.253.38', '54.209.168.101', '54.221.17.161']
+    
+    conn = init_conn(ip_list)
+
+    #insert_query(conn)
+    
+    if check_sub(conn) == True :
+        for i in range (len(conn)) : conn[i].close()
+        print("gg wp")
+
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])
