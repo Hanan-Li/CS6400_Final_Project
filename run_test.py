@@ -4,7 +4,7 @@ import psycopg2
 import time
 
 
-ip_list = ['52.201.253.38', '54.209.168.101', '54.221.17.161']
+ip_list = ['24.98.255.22', '54.209.168.101', '54.221.17.161']
 
 def init_conn(ip_list) :
     conn = []
@@ -20,14 +20,14 @@ def init_conn(ip_list) :
     
 
 def insert_query(conn) :
-    insert_query = "INSERT INTO pgbench_tellers (tid, bid, tbalance, filler) VALUES (999, 999, 999, '');"
+    query = "INSERT INTO pgbench_history (tid, bid, aid, delta, mtime, filler) VALUES (999, 999, 999, 999, now(), '');"
 
     start_time = time.time()
     commit_time = [0.0 for i in range(len(conn))]
 
     for i in range(len(conn)) :
         cursor = conn[i].cursor()
-        cursor.execute(insert_query)
+        cursor.execute(query)
         conn[i].commit ()
         commit_time[i] = time.time() - start_time
         print("IP: ", ip_list[i], " commit time: ", commit_time[i])
@@ -69,7 +69,7 @@ def main(argv):
     
     conn = init_conn(ip_list)
 
-    #insert_query(conn)
+    insert_query(conn)
     
     if check_sub(conn) == True :
         for i in range (len(conn)) : conn[i].close()
