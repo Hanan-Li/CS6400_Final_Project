@@ -2,6 +2,7 @@ import os
 import sys
 import psycopg2
 import time
+import random
 
 
 ip_list = ['24.98.255.22', '52.201.253.38', '54.209.168.101', '54.221.17.161']
@@ -20,19 +21,28 @@ def init_conn(ip_list) :
     
 
 def insert_query(conn) :
-    query = "INSERT INTO pgbench_history (tid, bid, aid, delta, mtime, filler) VALUES (999, 999, 999, 999, now(), '');"
+    
+    num_queries = 100
+    query = []
+    for i in range(num_queries) :
+        query.append(f"INSERT INTO pgbench_history (tid, bid, aid, delta, mtime, filler) VALUES ({random.randrange(1, 10000, 1)}, {random.randrange(1, 1000, 1)}, {i + 1}, {random.randrange(-1000, 1000, 1)}, now(), '');")
+
+    
+    #query = "INSERT INTO pgbench_history (tid, bid, aid, delta, mtime, filler) VALUES (999, 999, 999, 999, now(), '');"
+    #print(query)
 
     start_time = time.time()
-    commit_time = [0.0 for i in range(len(conn))]
+    #commit_time = 0.0
+    cursor = conn[0].cursor()
+    for i in range(num_queries) :
 
-    for i in range(len(conn)) :
-        cursor = conn[i].cursor()
-        cursor.execute(query)
-        conn[i].commit ()
-        commit_time[i] = time.time() - start_time
-        print("IP: ", ip_list[i], " commit time: ", commit_time[i])
-        cursor.close ()
-                    
+        cursor.execute(query[i])
+        conn[0].commit ()
+
+    commit_time = time.time() - start_time
+    print("IP: ", ip_list[0], " insert ", num_queries, " queries time: ", commit_time)
+    cursor.close ()
+
 
 def check_sub(conn) :
 
