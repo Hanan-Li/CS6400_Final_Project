@@ -1,7 +1,10 @@
 import os
 import sys
 import psycopg2
+import time
 
+
+ip_list = ['52.201.253.38', '54.209.168.101', '54.221.17.161']
 
 def init_conn(ip_list) :
     conn = []
@@ -16,18 +19,26 @@ def init_conn(ip_list) :
     return conn
     
 
-def insert(conn) :
+def insert_query(conn) :
     insert_query = "INSERT INTO pgbench_tellers (tid, bid, tbalance, filler) VALUES (999, 999, 999, '');"
+
+    start_time = time.time()
+    commit_time = [0.0 for i in range(len(conn))]
+
     for i in range(len(conn)) :
         cursor = conn[i].cursor()
         cursor.execute(insert_query)
         conn[i].commit ()
+        commit_time[i] = time.time() - start_time
+        print("IP: ", ip_list[i], " commit time: ", commit_time[i])
         cursor.close ()
                     
 
 def check_sub(conn) :
 
     done_flag = [False for i in range(len(conn))]
+    start_time = time.time()
+    total_time = [0.0 for i in range(len(conn))]
 
     while True :
         for i in range(len(conn)) :
@@ -43,6 +54,8 @@ def check_sub(conn) :
                 if 'd' in state:
                     continue
                 else :
+                    total_time[i] = time.time() - start_time
+                    print("IP: ", ip_list[i], " time: ", total_time[i])
                     done_flag[i] = True
 
         if False in done_flag :
@@ -53,7 +66,6 @@ def check_sub(conn) :
 
 def main(argv):
 
-    ip_list = ['52.201.253.38', '54.209.168.101', '54.221.17.161']
     
     conn = init_conn(ip_list)
 
