@@ -5,11 +5,12 @@ import time
 import random
 import getopt
 import threading
+import math
 from statistics import mean
 
 
 
-ip_list = ['54.209.168.101'] #,  '24.98.255.22', '52.201.253.38' , '54.209.168.101', '54.221.17.161'
+ip_list = ['24.98.255.22'] #,  '24.98.255.22', '52.201.253.38' , '54.209.168.101', '54.221.17.161'
 
 proxy_connection = psycopg2.connect(user = "postgres",
                                     password = "realSmooth",
@@ -28,7 +29,8 @@ def init_conn(ip_list) :
                                       database = "ChaCha")
         conn.append(connection)
     return conn
-    
+
+
 def bulk_insert(queries, idx):
     time.sleep(1)
     query = "".join(queries)
@@ -80,9 +82,13 @@ def insert_query(conn, bulk, num_queries, num_writers):
     else :
         threads = []
         for i in range(num_writers):
-            sub_queries = query[i:(i+1) * num_writers/3]
-            t = threading.Thread(bulk_insert, args=(sub_queries, i))
+            start_idx = i * math.floor(len(query)/num_writers)
+            end_idx = (i+1) * math.floor(len(query)/num_writers)
+
+            sub_queries = query[start_idx: end_idx]
+            t = threading.Thread(target=bulk_insert, args=(sub_queries, i))
             threads.append(t)
+            t.start()
         
         for t in threads:
             t.join()
@@ -162,6 +168,8 @@ def main(argv):
         print ("For Usage: run_test.py -u")
         sys.exit(2)
 
+    print(num_queries)
+    print(num_writers)
 
     conn = init_conn(ip_list)
     insert_query(conn, bulk, num_queries, num_writers)
