@@ -1,7 +1,8 @@
 # Instructions for setup and execution
 This document contains information on setting up servers for logical replication or log shipping, as well as execution information. We assume all machines/servers/clients will use a linux based operating system.
 In particular, HAproxy load balancing does not support windows.
-Logical Replication cannot be setup simultaneously with log shipping, so after finishing execution and tests on one setup, it has to be torn down and reconfigured from scratch.
+Logical Replication cannot be setup simultaneously with log shipping, so after finishing execution and tests on one setup, it has to be torn down and reconfigured from scratch.  
+All the code in this project were written by us. 
 ## Server Acquisition and Installation of Postgresql 13.1
 1. Acquire 3 AWS ec2 linux instances with 4GB of RAM
 1. If you are able to set up port forwarding on your local router and your computer has ~10gb free disk space, we will use your own computer as another server. If not, set up another AWS ec2 instance with 4GB of RAM

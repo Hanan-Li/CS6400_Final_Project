@@ -5,6 +5,10 @@ Final Project for Gatech CS6400 Database system course. Detailed instructions on
 ## Directory Structure
 * haproxy_cfg/
   * Contains all the haproxy configs used for the project, and a bash script with the command used to start different haproxy setups
+* stats_graph/
+  * Contains all the graphs generated for the project
+* instructions.md
+  * Contains instructions on our experiment setup
 * raf_test.py
   * Custom python script used to test read-after-write latency.
 * read_test.py
