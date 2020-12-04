@@ -11,7 +11,7 @@ from statistics import mean
 
 
 ip_list = ['24.98.255.22'] #,  '24.98.255.22', '52.201.253.38' , '54.209.168.101', '54.221.17.161'
-
+connections_list = ["ec2-54-226-57-144.compute-1.amazonaws.com", "ec2-50-17-30-28.compute-1.amazonaws.com", "ec2-54-91-97-231.compute-1.amazonaws.com"]
 proxy_connection = psycopg2.connect(user = "postgres",
                                     password = "realSmooth",
                                     host = '127.0.0.1',
@@ -35,17 +35,18 @@ def bulk_insert(queries, idx):
     time.sleep(1)
     query = "".join(queries)
     start_time = time.time()
-    proxy_connection = psycopg2.connect(user = "postgres",
+    connection = psycopg2.connect(user = "postgres",
                                     password = "realSmooth",
                                     host = '127.0.0.1',
                                     port = "6432",
                                     database = "ChaCha")
-    cursor = proxy_connection.cursor()
+    cursor = connection.cursor()
     cursor.execute(query)
-    proxy_connection.commit()
-    proxy_connection.close()
+    connection.commit()
+    connection.close()
     commit_time = time.time() - start_time
     print("Thread ", idx, " insert time: ", commit_time)
+    return commit_time
 
 
 def insert_query(conn, bulk, num_queries, num_writers):
@@ -56,26 +57,30 @@ def insert_query(conn, bulk, num_queries, num_writers):
 
     start_time = time.time()
     commit_time = 0.0
-    cursor = proxy_connection.cursor()
-
-    truncate = "TRUNCATE pgbench_history;"
-    cursor.execute(truncate)
-    proxy_connection.commit()
-    proxy_connection.close()
+    for i in range(num_writers):
+        proxy_connection = psycopg2.connect(user = "postgres",
+                                        password = "realSmooth",
+                                        host = connections_list[i],
+                                        port = "5432",
+                                        database = "ChaCha")
+        cursor = proxy_connection.cursor()
+        truncate = "TRUNCATE pgbench_history;"
+        cursor.execute(truncate)
+        proxy_connection.commit()
+        proxy_connection.close()
 
     if bulk == 0 :
-
         for i in range(num_queries) :
             start_time = time.time()
-            proxy_connection = psycopg2.connect(user = "postgres",
+            connection = psycopg2.connect(user = "postgres",
                                     password = "realSmooth",
                                     host = '127.0.0.1',
                                     port = "6432",
                                     database = "ChaCha")
-            cursor = proxy_connection.cursor()
+            cursor = connection.cursor()
             cursor.execute(query[i])
-            proxy_connection.commit()            
-            proxy_connection.close()
+            connection.commit()            
+            connection.close()
             commit_time += time.time() - start_time
         print("IP: proxy ", " insert ", num_queries, " queries time: ", commit_time)
         cursor.close ()
@@ -89,11 +94,12 @@ def insert_query(conn, bulk, num_queries, num_writers):
             t = threading.Thread(target=bulk_insert, args=(sub_queries, i))
             threads.append(t)
             t.start()
-        
+        tot_commit_time = 0.0
         for t in threads:
             t.join()
         print("All Threads Done")
-    # commit_time = time.time() - start_time
+        print("Average insert time = ", tot_commit_time/num_writers)
+    commit_time = time.time() - start_time
     
 
 
