@@ -89,7 +89,8 @@ def insert_query(conn, bulk, num_queries, num_writers):
         for i in range(num_writers):
             start_idx = i * math.floor(len(query)/num_writers)
             end_idx = (i+1) * math.floor(len(query)/num_writers)
-
+            if i == num_writers - 1:
+                end_idx = len(query)
             sub_queries = query[start_idx: end_idx]
             t = threading.Thread(target=bulk_insert, args=(sub_queries, i))
             threads.append(t)
