@@ -27,7 +27,7 @@ Note that we used HAproxy on the client side instead of putting it in another in
     1. yum install haproxy
 
 To start HAproxy service:  
-sudo haproxy -f <config name> -p /var/run/haproxy.pid -sf $(cat /var/run/haproxy.pid)  
+`<sudo haproxy -f <config name> -p /var/run/haproxy.pid -sf $(cat /var/run/haproxy.pid)>`
 Configs used for this project can be seen in haproxy_cfg directory. The ending number in the config files refers to number of servers to load balance connections to.
 
 
