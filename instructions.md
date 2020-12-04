@@ -41,6 +41,9 @@ Once everything is setup, tests can be executed on the clientside. One big note 
 * To run read after write test, use raf_test.py. However, the IP addresses are hardcoded into the file, so please change the `ip_list` variable to reflect your IP addresses for the servers. Make sure the first element in the list is the primary server used for writes. Read-after-write tests do not need a loadbalancer, but before running each test, make sure the servers are set up properly. For example, if you want to test read after write with a 3 server logical replication setup, make sure to turn off the subscription for one of the postgresql servers, and set up logical replication with 1 primary server and 2 secondary servers.
 * If your setup is for logical replication distributed writes, use write_test.py. Distributed write setup must be setup in a specific way. That is, make sure to change the `connection_list` variable to reflect the IP addresses of your writing primary servers, and `ip_list` variable to only have the Ip address of your single read-only secondary server. Also make sure to change your haproxy to run with the correct config, load balancing to your primary writing servers before each test. Again, also make sure that the server configuration is correct.
 
+## Stats Generated
+All of our statistic graphs generated can be seen in the stats_graph directory. Detailed numbers can be seen on this google sheet:  
+https://docs.google.com/spreadsheets/d/1tkqGtOwzKeg1QVUoJs9WQP85m5-rW3Jsn4ceSJjcpUA/edit?usp=sharing
 
 
 
