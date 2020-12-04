@@ -27,15 +27,23 @@ def main(argv):
     num_clients = 80
     num_transactions = 1000
     num_threads = 1
-    read_only = False
+    read_only = True
     try:
-        opts, args = getopt.getopt(argv,"hs:c:t:j:r",["servers=","clients=","transactions=", "jobs="])
+        opts, args = getopt.getopt(argv,"us:c:t:j:",["servers=","clients=","transactions=", "jobs="])
     except getopt.GetoptError:
-        print("Shit")
+        print ("Usage: pythonread_test.py -s <number of servers> -c <number of clients> -t <number of transactions> -j <number of threads>")
+        print("-s <int> -> Number of Servers set up for distributed reads")
+        print("-c <int> -> Number of Clients to send read jobs simultaneously, pgbench parameter")
+        print("-t <int> -> Number of transactions per client, pgbench parameter")
+        print("-j <int> -> Number of threads per client, pgbench parameter")
         sys.exit(2)
     for opt, arg in opts:
-        if opt == '-h':
-            print("Shit")
+        if opt == '-u':
+            print ("Usage: pythonread_test.py -s <number of servers> -c <number of clients> -t <number of transactions> -j <number of threads>")
+            print("-s <int> -> Number of Servers set up for distributed reads")
+            print("-c <int> -> Number of Clients to send read jobs simultaneously, pgbench parameter")
+            print("-t <int> -> Number of transactions per client, pgbench parameter")
+            print("-j <int> -> Number of threads per client, pgbench parameter")
             sys.exit()
         elif opt in ("-s", "--servers"):
             num_servers = int(arg)
@@ -45,10 +53,8 @@ def main(argv):
             num_transactions = int(arg)
         elif opt in ("-j", "--jobs"):
             num_threads = int(arg)
-        elif opt == '-r':
-            read_only = True
-    print(num_servers)
-    # setupHaproxy(num_servers)
+
+    setupHaproxy(num_servers)
     run_pgbench(num_clients, num_transactions, num_threads, read_only)
 
 if __name__ == '__main__':
