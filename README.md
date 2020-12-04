@@ -1,6 +1,6 @@
 # CS6400_Final_Project
 
-Final Project for Gatech CS6400 Database system course
+Final Project for Gatech CS6400 Database system course. Detailed instructions on how to setup the project can be seen in instructions.md
 
 ## Directory Structure
 * haproxy_cfg/
