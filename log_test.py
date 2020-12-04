@@ -9,6 +9,9 @@ from statistics import mean
 
 
 ip_list = ['24.98.255.22']#, 'ec2-50-17-30-28.compute-1.amazonaws.com']#, '54.209.168.101', '54.221.17.161']
+conn_list = ["ec2-50-17-30-28.compute-1.amazonaws.com",
+        "ec2-54-226-57-144.compute-1.amazonaws.com",
+        "ec2-54-91-97-231.compute-1.amazonaws.com"]
 
 def init_conn(ip_list) :
     conn = []
@@ -17,6 +20,14 @@ def init_conn(ip_list) :
         connection = psycopg2.connect(user = "postgres",
                                       password = "realSmooth",
                                       host = ip_list[i],
+                                      port = "5432",
+                                      database = "ChaCha")
+        conn.append(connection)
+    for i in range(len(conn_list)) :
+    
+        connection = psycopg2.connect(user = "postgres",
+                                      password = "realSmooth",
+                                      host = conn_list[i],
                                       port = "5432",
                                       database = "ChaCha")
         conn.append(connection)
@@ -80,7 +91,7 @@ def check_sub(conn, num_queries) :
                 else :
                     #print (temp[0])
                     total_time[i] = time.time() - start_time
-                    print("IP: ", ip_list[i], " time: ", total_time[i])
+                    print("IP: ", conn_list[i-1], " time: ", total_time[i])
                     done_flag[i] = True
 
         if False in done_flag :
